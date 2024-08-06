@@ -3,6 +3,8 @@
 //   Even better, extract that logic and reuse it in both places. You can use
 //   private functions or private static methods for that.
 
+use std::os::macos::raw::stat;
+
 pub struct Ticket {
     title: String,
     description: String,
@@ -60,19 +62,43 @@ impl Ticket {
         &self.title
     }
 
+    // ? This is one method of creating a setter, that uses a mutable reference, takes ownership and returns the modifield self
+    // ? this does not need the caller to explicitly use a let binding but
+    // ? also does not let function calls be chained together
+    // pub fn set_title(mut self, title: String) -> Self {
+    //     Ticket::validate_title_not_empty(&title);
+    //     Ticket::validate_title_length(&title);
+    //     self.title = title;
+    //     self
+    // }
+
+    // ? another way to do this is to have a mutable self reference and not take ownership
+    // ? this requires that the caller explicitly use a let binding to keep ownership
+    // ? but it does let function calls be chained together e.g. foo.bar().baz()
     pub fn set_title(&mut self, title: String) {
         Ticket::validate_title_not_empty(&title);
         Ticket::validate_title_length(&title);
-        self.title = title
+
+        self.title = title;
     }
 
     pub fn description(&self) -> &String {
         &self.description
     }
 
+    // ? mut self return self pattern
+    // pub fn set_description(mut self, description: String) -> Self {
+    //     Ticket::validate_description_length(&description);
+    //     Ticket::validate_description_not_empty(&description);
+    //     self.description = description;
+    //     self
+    // }
+
+    // ? &mut self no return pattern
     pub fn set_description(&mut self, description: String) {
         Ticket::validate_description_length(&description);
         Ticket::validate_description_not_empty(&description);
+
         self.description = description
     }
 
@@ -80,12 +106,21 @@ impl Ticket {
         &self.status
     }
 
+    // ? mut self return self pattern
+    // pub fn set_status(mut self, status: String) -> Self {
+    //     Ticket::validate_status(&status);
+    //     self.status = status;
+    //     self
+    // }
+
+    // ? &mut self no return pattern
     pub fn set_status(&mut self, status: String) {
         Ticket::validate_status(&status);
-        self.status = status
+        self.status = status;
     }
 }
 
+// ! the implementation of these tests requires that we use a specific pattern for setters
 #[cfg(test)]
 mod tests {
     use super::Ticket;
