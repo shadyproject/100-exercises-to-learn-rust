@@ -60,31 +60,51 @@ impl Ticket {
         &self.title
     }
 
-    pub fn set_title(&mut self, title: String) {
-        Ticket::validate_title_not_empty(&title);
-        Ticket::validate_title_length(&title);
+    // pub fn set_title(&mut self, title: String) {
+    //     Ticket::validate_title_not_empty(&title);
+    //     Ticket::validate_title_length(&title);
 
-        self.title = title;
+    //     self.title = title;
+    // }
+    pub fn set_title(mut self, new_title: String) -> Self {
+        Ticket::validate_title_not_empty(&new_title);
+        Ticket::validate_title_length(&new_title);
+
+        self.title = new_title;
+        self
     }
 
     pub fn description(&self) -> &String {
         &self.description
     }
 
-    pub fn set_description(&mut self, description: String) {
-        Ticket::validate_description_length(&description);
-        Ticket::validate_description_not_empty(&description);
+    // pub fn set_description(&mut self, description: String) {
+    //     Ticket::validate_description_length(&description);
+    //     Ticket::validate_description_not_empty(&description);
 
-        self.description = description
+    //     self.description = description
+    // }
+    pub fn set_description(mut self, new_description: String) -> Self {
+        Ticket::validate_description_length(&new_description);
+        Ticket::validate_description_not_empty(&new_description);
+
+        self.description = new_description;
+        self
     }
 
     pub fn status(&self) -> &String {
         &self.status
     }
 
-    pub fn set_status(&mut self, status: String) {
-        Ticket::validate_status(&status);
-        self.status = status;
+    // pub fn set_status(&mut self, status: String) {
+    //     Ticket::validate_status(&status);
+    //     self.status = status;
+    // }
+    pub fn set_status(mut self, new_status: String) -> Self {
+        Ticket::validate_status(&new_status);
+        self.status = new_status;
+
+        self
     }
 }
 
@@ -96,10 +116,18 @@ mod tests {
 
     #[test]
     fn works() {
-        let mut ticket = Ticket::new("A title".into(), "A description".into(), "To-Do".into());
-        ticket.set_title("A new title".into());
-        ticket.set_description("A new description".into());
-        ticket.set_status("Done".into());
+        // if we use the mut self pattern, we need to use a variable to keep ownership
+        let ticket = Ticket::new("A title".into(), "A description".into(), "To-Do".into());
+        //we could do this all in one line
+        let ticket = ticket
+            .set_title("A new title".into())
+            .set_description("A new description".into())
+            .set_status("Done".into());
+
+        // if we use the &mut self we need call everything on a separate line, because we don't take ownership so we don't return anything
+        // ticket.set_title("A new title".into());
+        // ticket.set_description("A new description".into());
+        // ticket.set_status("Done".into());
 
         assert_eq!(ticket.title(), "A new title");
         assert_eq!(ticket.description(), "A new description");
@@ -121,15 +149,19 @@ mod tests {
     #[test]
     #[should_panic(expected = "Title cannot be longer than 50 bytes")]
     fn title_cannot_be_longer_than_fifty_chars() {
-        Ticket::new(valid_title(), valid_description(), "To-Do".into())
-            .set_title(overly_long_title())
+        // if we use the return self pattern, we still need a variable
+        // if we used the &mut self here, we wouldn't need a variable because we dont' return anything
+        let _ = Ticket::new(valid_title(), valid_description(), "To-Do".into())
+            .set_title(overly_long_title());
     }
 
     #[test]
     #[should_panic(expected = "Description cannot be longer than 500 bytes")]
     fn description_cannot_be_longer_than_500_chars() {
-        Ticket::new(valid_title(), valid_description(), "To-Do".into())
-            .set_description(overly_long_description())
+        // if we use the return self pattern, we still need a variable
+        // if we used the &mut self here, we wouldn't need a variable because we dont' return anything
+        let _ = Ticket::new(valid_title(), valid_description(), "To-Do".into())
+            .set_description(overly_long_description());
     }
 
     #[test]
